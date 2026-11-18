@@ -29,6 +29,23 @@ console.error(err);
 res.status(500).json({ error: 'database error' });
 }
 });
+app.patch('/api/tasks/:id', async (req, res) => {
+const id = Number(req.params.id);
+if (!Number.isInteger(id) || typeof req.body.done !== 'boolean') {
+return res.status(400).json({ error: 'id ou champ done (booléen) invalide' });
+}
+try {
+const { rows } = await pool.query(
+'UPDATE tasks SET done = $1 WHERE id = $2 RETURNING id, title, done, created_at',
+[req.body.done, id]
+);
+if (!rows.length) return res.status(404).json({ error: 'tâche introuvable' });
+res.json(rows[0]);
+} catch (err) {
+console.error(err);
+res.status(500).json({ error: 'database error' });
+}
+});
 async function migrate() {
 await pool.query(`
 CREATE TABLE IF NOT EXISTS tasks (

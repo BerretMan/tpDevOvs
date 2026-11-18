@@ -4,6 +4,9 @@
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>TP DevOps</title>
+	<style>
+		li.done span { text-decoration: line-through; color: gray; }
+	</style>
 </head>
 <body>
 	<h1>TP DevOps</h1>
@@ -36,7 +39,15 @@
 				list.innerHTML = '';
 				tasks.forEach((t) => {
 					const li = document.createElement('li');
-					li.textContent = t.title;
+					if (t.done) li.className = 'done';
+					const box = document.createElement('input');
+					box.type = 'checkbox';
+					box.checked = t.done;
+					box.setAttribute('aria-label', 'Marquer comme faite');
+					box.addEventListener('change', () => toggleTask(t.id, box.checked));
+					const label = document.createElement('span');
+					label.textContent = t.title;
+					li.append(box, ' ', label);
 					list.appendChild(li);
 				});
 				statusEl.textContent = tasks.length ? '' : 'Aucune tâche trouvée';
@@ -45,6 +56,17 @@
 				if (id !== seq) return;
 				statusEl.textContent = "Impossible de joindre l'API";
 			});
+	}
+
+	function toggleTask(id, done) {
+		fetch('/api/tasks/' + id, {
+			method: 'PATCH',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify({ done }),
+		})
+			.then((res) => { if (!res.ok) throw new Error(); })
+			.catch(() => { statusEl.textContent = 'Mise à jour impossible'; })
+			.finally(() => loadTasks(searchEl.value.trim()));
 	}
 
 	searchEl.addEventListener('input', () => {
