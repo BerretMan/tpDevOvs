@@ -25,7 +25,8 @@
 			const list = document.getElementById('tasks');
 			tasks.forEach((t) => {
 				const li = document.createElement('li');
-				li.textContent = t.title;
+				const date = new Date(t.created_at).toLocaleString('fr-FR');
+				li.textContent = `${t.title} (créée le ${date})`;
 				list.appendChild(li);
 			});
 			document.getElementById('status').textContent = '';
