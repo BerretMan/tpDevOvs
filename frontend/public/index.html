@@ -5,11 +5,13 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>TP DevOps</title>
 	<style>
-		li.done span { text-decoration: line-through; color: gray; }
+		body.dark { background: #1e1e1e; color: #e6e6e6; }
+		body.dark input { background: #2d2d2d; color: #e6e6e6; border: 1px solid #555; }
 	</style>
 </head>
 <body>
 	<h1>TP DevOps</h1>
+	<button id="theme" type="button">Mode sombre</button>
 	<h2>Liste des membres</h2>
 	<nav>
 	<ul>
@@ -26,6 +28,14 @@
 	const statusEl = document.getElementById('status');
 	const list = document.getElementById('tasks');
 	const searchEl = document.getElementById('search');
+	const themeEl = document.getElementById('theme');
+	function applyTheme(dark) {
+		document.body.classList.toggle('dark', dark);
+		themeEl.textContent = dark ? 'Mode clair' : 'Mode sombre';
+		try { localStorage.setItem('dark', dark ? '1' : '0'); } catch (e) {}
+	}
+	themeEl.addEventListener('click', () => applyTheme(!document.body.classList.contains('dark')));
+	try { applyTheme(localStorage.getItem('dark') === '1'); } catch (e) {}
 	let timer;
 	let seq = 0;
 
