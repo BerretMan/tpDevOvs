@@ -14,7 +14,13 @@ res.json({ status: 'ok' });
 });
 app.get('/api/tasks', async (req, res) => {
 try {
-const { rows } = await pool.query(
+const q = typeof req.query.q === 'string' ? req.query.q.trim() : '';
+const { rows } = q
+? await pool.query(
+"SELECT id, title, done, created_at FROM tasks WHERE title ILIKE $1 ESCAPE '\\' ORDER BY id",
+[`%${q.replace(/[\\%_]/g, '\\$&')}%`]
+)
+: await pool.query(
 'SELECT id, title, done, created_at FROM tasks ORDER BY id'
 );
 res.json(rows);
