@@ -26,7 +26,7 @@ spec:
     spec:
       containers:
         - name: back
-          image: mbbeepops/tp-devops:back-val
+          image: DOCKER_USERNAME/tp-devops:back-val
           imagePullPolicy: Always
           ports:
             - containerPort: 3000
