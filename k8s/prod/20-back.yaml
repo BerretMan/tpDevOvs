@@ -1,0 +1,67 @@
+# Config non sensible du back (le user/mdp viennent du secret)
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: back-config
+  namespace: prod
+data:
+  APP_ENV: prod
+  DB_HOST: db
+  DB_PORT: "5432"
+  DB_NAME: tpdb
+---
+# API Node : 3 replicas, pret quand /api/health repond
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: back
+  namespace: prod
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: back
+  template:
+    metadata:
+      labels:
+        app: back
+    spec:
+      containers:
+        - name: back
+          image: DOCKERHUB_USER/tp-devops:back-prod
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 3000
+          envFrom:
+            - configMapRef:
+                name: back-config
+          env:
+            - name: DB_USER
+              valueFrom:
+                secretKeyRef:
+                  name: db-secret
+                  key: POSTGRES_USER
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: db-secret
+                  key: POSTGRES_PASSWORD
+          readinessProbe:
+            httpGet:
+              path: /api/health
+              port: 3000
+            initialDelaySeconds: 5
+            periodSeconds: 5
+---
+# Acces interne au back (appele par nginx du front sur /api/)
+apiVersion: v1
+kind: Service
+metadata:
+  name: back
+  namespace: prod
+spec:
+  selector:
+    app: back
+  ports:
+    - port: 3000
+      targetPort: 3000
