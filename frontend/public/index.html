@@ -17,12 +17,18 @@
 	</nav>
 	<h2>Tâches</h2>
 	<input type="search" id="search" placeholder="Rechercher par titre..." aria-label="Rechercher une tâche">
+	<select id="filter" aria-label="Filtrer par statut">
+		<option value="all">Toutes</option>
+		<option value="todo">À faire</option>
+		<option value="done">Faites</option>
+	</select>
 	<p id="status">Chargement...</p>
 	<ul id="tasks"></ul>
 	<script>
 	const statusEl = document.getElementById('status');
 	const list = document.getElementById('tasks');
 	const searchEl = document.getElementById('search');
+	const filterEl = document.getElementById('filter');
 	let timer;
 	let seq = 0;
 
@@ -34,6 +40,8 @@
 			.then((tasks) => {
 				if (id !== seq) return;
 				list.innerHTML = '';
+				const f = filterEl.value;
+				tasks = tasks.filter((t) => f === 'all' || (f === 'done') === t.done);
 				tasks.forEach((t) => {
 					const li = document.createElement('li');
 					li.textContent = t.title;
@@ -51,6 +59,7 @@
 		clearTimeout(timer);
 		timer = setTimeout(() => loadTasks(searchEl.value.trim()), 250);
 	});
+	filterEl.addEventListener('change', () => loadTasks(searchEl.value.trim()));
 	loadTasks('');
 	</script>
 </body>
