@@ -22,6 +22,7 @@
 	</form>
 	<input type="search" id="search" placeholder="Rechercher par titre..." aria-label="Rechercher une tâche">
 	<p id="status">Chargement...</p>
+	<p id="counter"></p>
 	<ul id="tasks"></ul>
 	<script>
 	const statusEl = document.getElementById('status');
@@ -51,6 +52,9 @@
 					li.append(title, del);
 					list.appendChild(li);
 				});
+				const remaining = tasks.filter((t) => !t.done).length;
+				document.getElementById('counter').textContent =
+					remaining + ' tâche' + (remaining > 1 ? 's' : '') + ' restante' + (remaining > 1 ? 's' : '');
 				statusEl.textContent = tasks.length ? '' : 'Aucune tâche trouvée';
 			})
 			.catch(() => {
