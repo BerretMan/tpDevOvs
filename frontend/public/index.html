@@ -38,6 +38,7 @@
 	const statusEl = document.getElementById('status');
 	const list = document.getElementById('tasks');
 	const searchEl = document.getElementById('search');
+	const filterEl = document.getElementById('filter');
 	const themeEl = document.getElementById('theme');
 	function applyTheme(dark) {
 		document.body.classList.toggle('dark', dark);
@@ -69,7 +70,10 @@
 					box.addEventListener('change', () => toggleTask(t.id, box.checked));
 					const label = document.createElement('span');
 					label.textContent = t.title;
-					li.append(box, ' ', label);
+					const del = document.createElement('button');
+					del.textContent = 'Supprimer';
+					del.addEventListener('click', () => deleteTask(t.id));
+					li.append(box, ' ', label, ' ', del);
 					list.appendChild(li);
 				});
 				const remaining = tasks.filter((t) => !t.done).length;
@@ -93,6 +97,26 @@
 			.catch(() => { statusEl.textContent = 'Mise à jour impossible'; })
 			.finally(() => loadTasks(searchEl.value.trim()));
 	}
+
+	function deleteTask(id) {
+		fetch('/api/tasks/' + id, { method: 'DELETE' })
+			.then((res) => { if (!res.ok) throw new Error(); })
+			.catch(() => { statusEl.textContent = 'Suppression impossible'; })
+			.finally(() => loadTasks(searchEl.value.trim()));
+	}
+
+	document.getElementById('add-form').addEventListener('submit', (e) => {
+		e.preventDefault();
+		const input = document.getElementById('title');
+		fetch('/api/tasks', {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify({ title: input.value }),
+		})
+			.then((res) => { if (!res.ok) throw new Error(); input.value = ''; })
+			.catch(() => { statusEl.textContent = 'Ajout impossible'; })
+			.finally(() => loadTasks(searchEl.value.trim()));
+	});
 
 	searchEl.addEventListener('input', () => {
 		clearTimeout(timer);

@@ -22,3 +22,23 @@ body: JSON.stringify({ done: 'oui' }),
 server.close();
 assert.strictEqual(res.status, 400);
 });
+
+test('POST /api/tasks sans titre répond 400', async () => {
+const server = app.listen(0);
+const { port } = server.address();
+const res = await fetch(`http://127.0.0.1:${port}/api/tasks`, {
+method: 'POST',
+headers: { 'Content-Type': 'application/json' },
+body: JSON.stringify({ title: '' }),
+});
+server.close();
+assert.strictEqual(res.status, 400);
+});
+
+test('DELETE /api/tasks/abc répond 400', async () => {
+const server = app.listen(0);
+const { port } = server.address();
+const res = await fetch(`http://127.0.0.1:${port}/api/tasks/abc`, { method: 'DELETE' });
+server.close();
+assert.strictEqual(res.status, 400);
+});
