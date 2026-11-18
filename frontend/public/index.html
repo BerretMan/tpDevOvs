@@ -32,7 +32,15 @@
 			list.innerHTML = '';
 			tasks.forEach((t) => {
 				const li = document.createElement('li');
-				li.textContent = t.title;
+				const title = document.createElement('span');
+				title.textContent = t.title + ' ';
+				const del = document.createElement('button');
+				del.textContent = 'Supprimer';
+				del.addEventListener('click', async () => {
+					await fetch('/api/tasks/' + t.id, { method: 'DELETE' });
+					loadTasks();
+				});
+				li.append(title, del);
 				list.appendChild(li);
 			});
 			status.textContent = '';
