@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: front
-          image: DOCKERHUB_USER/tp-devops:front-val
+          image: mbbeepops/tp-devops:front-val
           imagePullPolicy: Always
           ports:
             - containerPort: 80
