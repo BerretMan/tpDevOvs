@@ -21,6 +21,7 @@
 		<button type="submit">Ajouter</button>
 	</form>
 	<p id="status">Chargement...</p>
+	<p id="counter"></p>
 	<ul id="tasks"></ul>
 	<script>
 	async function loadTasks() {
@@ -43,6 +44,9 @@
 				li.append(title, del);
 				list.appendChild(li);
 			});
+			const remaining = tasks.filter((t) => !t.done).length;
+			document.getElementById('counter').textContent =
+				remaining + ' tâche' + (remaining > 1 ? 's' : '') + ' restante' + (remaining > 1 ? 's' : '');
 			status.textContent = '';
 		} catch (e) {
 			status.textContent = "Impossible de joindre l'API";
