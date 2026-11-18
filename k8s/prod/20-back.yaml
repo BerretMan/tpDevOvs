@@ -1,4 +1,3 @@
-# Config non sensible du back (le user/mdp viennent du secret)
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -10,7 +9,6 @@ data:
   DB_PORT: "5432"
   DB_NAME: tpdb
 ---
-# API Node : 3 replicas, pret quand /api/health repond
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -28,7 +26,7 @@ spec:
     spec:
       containers:
         - name: back
-          image: DOCKERHUB_USER/tp-devops:back-prod
+          image: DOCKER_USERNAME/tp-devops:back-prod
           imagePullPolicy: Always
           ports:
             - containerPort: 3000
@@ -53,7 +51,6 @@ spec:
             initialDelaySeconds: 5
             periodSeconds: 5
 ---
-# Acces interne au back (appele par nginx du front sur /api/)
 apiVersion: v1
 kind: Service
 metadata:
