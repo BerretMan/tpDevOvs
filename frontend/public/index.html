@@ -21,6 +21,10 @@
 	</ul>
 	</nav>
 	<h2>Tâches</h2>
+	<form id="add-form">
+		<input id="title" placeholder="Nouvelle tâche" required>
+		<button type="submit">Ajouter</button>
+	</form>
 	<input type="search" id="search" placeholder="Rechercher par titre..." aria-label="Rechercher une tâche">
 	<select id="filter" aria-label="Filtrer par statut">
 		<option value="all">Toutes</option>
@@ -28,6 +32,7 @@
 		<option value="done">Faites</option>
 	</select>
 	<p id="status">Chargement...</p>
+	<p id="counter"></p>
 	<ul id="tasks"></ul>
 	<script>
 	const statusEl = document.getElementById('status');
@@ -67,6 +72,9 @@
 					li.append(box, ' ', label);
 					list.appendChild(li);
 				});
+				const remaining = tasks.filter((t) => !t.done).length;
+				document.getElementById('counter').textContent =
+					remaining + ' tâche' + (remaining > 1 ? 's' : '') + ' restante' + (remaining > 1 ? 's' : '');
 				statusEl.textContent = tasks.length ? '' : 'Aucune tâche trouvée';
 			})
 			.catch(() => {
