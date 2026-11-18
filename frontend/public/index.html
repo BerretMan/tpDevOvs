@@ -20,36 +20,49 @@
 		<input id="title" placeholder="Nouvelle tâche" required>
 		<button type="submit">Ajouter</button>
 	</form>
+	<input type="search" id="search" placeholder="Rechercher par titre..." aria-label="Rechercher une tâche">
 	<p id="status">Chargement...</p>
 	<ul id="tasks"></ul>
 	<script>
-	async function loadTasks() {
-		const status = document.getElementById('status');
-		try {
-			const res = await fetch('/api/tasks');
-			const tasks = await res.json();
-			const list = document.getElementById('tasks');
-			list.innerHTML = '';
-			tasks.forEach((t) => {
-				const li = document.createElement('li');
-				const title = document.createElement('span');
-				title.textContent = t.title + ' ';
-				const del = document.createElement('button');
-				del.textContent = 'Supprimer';
-				del.addEventListener('click', async () => {
-					await fetch('/api/tasks/' + t.id, { method: 'DELETE' });
-					loadTasks();
-				});
-				li.append(title, del);
-				list.appendChild(li);
-			});
-			status.textContent = '';
-		} catch (e) {
-			status.textContent = "Impossible de joindre l'API";
-		}
-	}
-	loadTasks();
+	const statusEl = document.getElementById('status');
+	const list = document.getElementById('tasks');
+	const searchEl = document.getElementById('search');
+	let timer;
+	let seq = 0;
 
+	function loadTasks(q) {
+		const id = ++seq;
+		const url = q ? '/api/tasks?q=' + encodeURIComponent(q) : '/api/tasks';
+		fetch(url)
+			.then((res) => res.json())
+			.then((tasks) => {
+				if (id !== seq) return;
+				list.innerHTML = '';
+				tasks.forEach((t) => {
+					const li = document.createElement('li');
+					const title = document.createElement('span');
+					title.textContent = t.title + ' ';
+					const del = document.createElement('button');
+					del.textContent = 'Supprimer';
+					del.addEventListener('click', async () => {
+						await fetch('/api/tasks/' + t.id, { method: 'DELETE' });
+						loadTasks(searchEl.value.trim());
+					});
+					li.append(title, del);
+					list.appendChild(li);
+				});
+				statusEl.textContent = tasks.length ? '' : 'Aucune tâche trouvée';
+			})
+			.catch(() => {
+				if (id !== seq) return;
+				statusEl.textContent = "Impossible de joindre l'API";
+			});
+	}
+
+	searchEl.addEventListener('input', () => {
+		clearTimeout(timer);
+		timer = setTimeout(() => loadTasks(searchEl.value.trim()), 250);
+	});
 	document.getElementById('add-form').addEventListener('submit', async (e) => {
 		e.preventDefault();
 		const input = document.getElementById('title');
@@ -59,8 +72,9 @@
 			body: JSON.stringify({ title: input.value }),
 		});
 		input.value = '';
-		loadTasks();
+		loadTasks(searchEl.value.trim());
 	});
+	loadTasks('');
 	</script>
 </body>
 </html>
