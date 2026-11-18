@@ -16,23 +16,42 @@
 	</ul>
 	</nav>
 	<h2>Tâches</h2>
+	<input type="search" id="search" placeholder="Rechercher par titre..." aria-label="Rechercher une tâche">
 	<p id="status">Chargement...</p>
 	<ul id="tasks"></ul>
 	<script>
-	fetch('/api/tasks')
-		.then((res) => res.json())
-		.then((tasks) => {
-			const list = document.getElementById('tasks');
-			tasks.forEach((t) => {
-				const li = document.createElement('li');
-				li.textContent = t.title;
-				list.appendChild(li);
+	const statusEl = document.getElementById('status');
+	const list = document.getElementById('tasks');
+	const searchEl = document.getElementById('search');
+	let timer;
+	let seq = 0;
+
+	function loadTasks(q) {
+		const id = ++seq;
+		const url = q ? '/api/tasks?q=' + encodeURIComponent(q) : '/api/tasks';
+		fetch(url)
+			.then((res) => res.json())
+			.then((tasks) => {
+				if (id !== seq) return;
+				list.innerHTML = '';
+				tasks.forEach((t) => {
+					const li = document.createElement('li');
+					li.textContent = t.title;
+					list.appendChild(li);
+				});
+				statusEl.textContent = tasks.length ? '' : 'Aucune tâche trouvée';
+			})
+			.catch(() => {
+				if (id !== seq) return;
+				statusEl.textContent = "Impossible de joindre l'API";
 			});
-			document.getElementById('status').textContent = '';
-		})
-		.catch(() => {
-			document.getElementById('status').textContent = "Impossible de joindre l'API";
-		});
+	}
+
+	searchEl.addEventListener('input', () => {
+		clearTimeout(timer);
+		timer = setTimeout(() => loadTasks(searchEl.value.trim()), 250);
+	});
+	loadTasks('');
 	</script>
 </body>
 </html>
