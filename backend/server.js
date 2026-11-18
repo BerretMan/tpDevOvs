@@ -45,6 +45,22 @@ console.error(err);
 res.status(500).json({ error: 'database error' });
 }
 });
+app.delete('/api/tasks/:id', async (req, res) => {
+const id = Number(req.params.id);
+if (!Number.isInteger(id) || id <= 0) {
+return res.status(400).json({ error: 'invalid id' });
+}
+try {
+const { rowCount } = await pool.query('DELETE FROM tasks WHERE id = $1', [id]);
+if (rowCount === 0) {
+return res.status(404).json({ error: 'task not found' });
+}
+res.status(204).end();
+} catch (err) {
+console.error(err);
+res.status(500).json({ error: 'database error' });
+}
+});
 async function migrate() {
 await pool.query(`
 CREATE TABLE IF NOT EXISTS tasks (
