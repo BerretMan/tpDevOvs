@@ -16,6 +16,10 @@
 	</ul>
 	</nav>
 	<h2>Tâches</h2>
+	<form id="add-form">
+		<input id="title" placeholder="Nouvelle tâche" required>
+		<button type="submit">Ajouter</button>
+	</form>
 	<input type="search" id="search" placeholder="Rechercher par titre..." aria-label="Rechercher une tâche">
 	<p id="status">Chargement...</p>
 	<ul id="tasks"></ul>
@@ -50,6 +54,17 @@
 	searchEl.addEventListener('input', () => {
 		clearTimeout(timer);
 		timer = setTimeout(() => loadTasks(searchEl.value.trim()), 250);
+	});
+	document.getElementById('add-form').addEventListener('submit', async (e) => {
+		e.preventDefault();
+		const input = document.getElementById('title');
+		await fetch('/api/tasks', {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify({ title: input.value }),
+		});
+		input.value = '';
+		loadTasks(searchEl.value.trim());
 	});
 	loadTasks('');
 	</script>

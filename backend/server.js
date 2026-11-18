@@ -29,6 +29,22 @@ console.error(err);
 res.status(500).json({ error: 'database error' });
 }
 });
+app.post('/api/tasks', async (req, res) => {
+const title = (req.body.title || '').trim();
+if (!title) {
+return res.status(400).json({ error: 'title required' });
+}
+try {
+const { rows } = await pool.query(
+'INSERT INTO tasks (title) VALUES ($1) RETURNING id, title, done, created_at',
+[title]
+);
+res.status(201).json(rows[0]);
+} catch (err) {
+console.error(err);
+res.status(500).json({ error: 'database error' });
+}
+});
 async function migrate() {
 await pool.query(`
 CREATE TABLE IF NOT EXISTS tasks (
