@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>TP DevOps</title>
+</head>
+<body>
+	<h1>TP DevOps</h1>
+	<h2>Liste des membres</h2>
+	<nav>
+	<ul>
+	    <li>Lucas</li>
+	    <li>Nylan</li>
+	    <li>Mathéo</li>
+	</ul>
+	</nav>
+	<h2>Tâches</h2>
+	<p id="status">Chargement...</p>
+	<ul id="tasks"></ul>
+	<script>
+	fetch('/api/tasks')
+		.then((res) => res.json())
+		.then((tasks) => {
+			const list = document.getElementById('tasks');
+			tasks.forEach((t) => {
+				const li = document.createElement('li');
+				li.textContent = t.title;
+				list.appendChild(li);
+			});
+			document.getElementById('status').textContent = '';
+		})
+		.catch(() => {
+			document.getElementById('status').textContent = "Impossible de joindre l'API";
+		});
+	</script>
+</body>
+</html>
