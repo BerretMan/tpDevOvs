@@ -14,10 +14,32 @@ res.json({ status: 'ok' });
 });
 app.get('/api/tasks', async (req, res) => {
 try {
-const { rows } = await pool.query(
+const q = typeof req.query.q === 'string' ? req.query.q.trim() : '';
+const { rows } = q
+? await pool.query(
+"SELECT id, title, done, created_at FROM tasks WHERE title ILIKE $1 ESCAPE '\\' ORDER BY id",
+[`%${q.replace(/[\\%_]/g, '\\$&')}%`]
+)
+: await pool.query(
 'SELECT id, title, done, created_at FROM tasks ORDER BY id'
 );
 res.json(rows);
+} catch (err) {
+console.error(err);
+res.status(500).json({ error: 'database error' });
+}
+});
+app.post('/api/tasks', async (req, res) => {
+const title = (req.body.title || '').trim();
+if (!title) {
+return res.status(400).json({ error: 'title required' });
+}
+try {
+const { rows } = await pool.query(
+'INSERT INTO tasks (title) VALUES ($1) RETURNING id, title, done, created_at',
+[title]
+);
+res.status(201).json(rows[0]);
 } catch (err) {
 console.error(err);
 res.status(500).json({ error: 'database error' });
